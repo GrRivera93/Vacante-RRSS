@@ -24,6 +24,12 @@
         --vacation-color: #FF9F43;
     }
 
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-body-start);
@@ -35,324 +41,366 @@
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      box-sizing: border-box;
+      line-height: 1.6;
     }
+
     .container {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      max-width: 980px;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      max-width: 1200px;
       width: 100%;
       margin: 0 auto;
       background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 12px 30px var(--shadow-medium);
-      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      padding: 25px;
       overflow: hidden;
     }
+
     .panel {
         background-color: var(--bg-light);
         border: 1px solid var(--border-color);
-        border-radius: 15px;
-        padding: 28px;
-        box-shadow: 0 6px 15px var(--shadow-light);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px var(--shadow-light);
         position: relative;
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
     }
+
     .panel:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 25px var(--shadow-medium);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px var(--shadow-medium);
     }
+
     .capture-button {
         position: absolute;
-        top: 15px;
-        right: 15px;
-        background-color: rgba(255, 255, 255, 0.7);
+        top: 12px;
+        right: 12px;
+        background-color: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(5px);
         border: 1px solid rgba(200, 200, 200, 0.5);
-        border-radius: 8px;
-        padding: 8px;
+        border-radius: 6px;
+        padding: 6px;
         cursor: pointer;
         color: var(--text-medium);
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        transition: all 0.2s ease;
         z-index: 10;
         font-weight: 600;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        width: 36px;
-        height: 36px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        width: 32px;
+        height: 32px;
     }
+
     .capture-button:hover {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.95);
         border-color: rgba(180, 180, 180, 0.7);
         transform: translateY(-2px);
     }
+
     .capture-button:active {
         transform: translateY(0);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
+
     .capture-button svg {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         fill: var(--text-medium);
     }
+
     h1 {
       color: var(--primary-accent);
-      font-size: 2.5em;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
       margin-top: 0;
-      margin-bottom: 30px;
-      grid-column: span 2;
+      margin-bottom: 20px;
       text-align: center;
       font-weight: 800;
       letter-spacing: -0.5px;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+      line-height: 1.2;
     }
+
     h2 {
       color: var(--text-dark);
-      font-size: 1.4em;
+      font-size: clamp(1.2rem, 3vw, 1.4rem);
       margin-top: 0;
-      margin-bottom: 25px;
-      padding-bottom: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
       border-bottom: 3px solid var(--primary-accent);
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
+
     h2 .emoji {
-        font-size: 1.2em;
+        font-size: 1.1em;
     }
+
     h3 {
-        font-size: 1.2em;
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
         color: var(--text-dark);
-        margin-top: 30px;
-        margin-bottom: 18px;
+        margin-top: 20px;
+        margin-bottom: 15px;
         font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
+
     h3 .emoji {
-        font-size: 1em;
+        font-size: 0.9em;
     }
+
     .date-range {
       background-image: linear-gradient(45deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
       color: #ffffff;
-      padding: 12px 18px;
-      border-radius: 10px;
+      padding: 10px 15px;
+      border-radius: 8px;
       font-weight: 700;
-      margin: 20px 0;
+      margin: 15px 0;
       text-align: center;
-      font-size: 1.1em;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
       letter-spacing: 0.5px;
+      line-height: 1.3;
     }
+
     .shift-info {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
+
     .shift-day {
       font-weight: 600;
-      margin: 15px 0;
+      margin: 12px 0;
       display: flex;
       align-items: center;
       color: var(--text-medium);
+      font-size: clamp(0.9rem, 2vw, 1rem);
     }
+
     .shift-day .emoji {
-        margin-right: 10px;
-        font-size: 1.3em;
+        margin-right: 8px;
+        font-size: 1.1em;
     }
+
     .shift-day.rest-day {
       color: var(--resting-color);
       font-weight: 800;
-      font-size: 1.1em;
-      padding: 8px 0;
-      border-left: 5px solid var(--resting-color);
-      padding-left: 15px;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      padding: 6px 0;
+      border-left: 4px solid var(--resting-color);
+      padding-left: 12px;
       background-color: rgba(238, 82, 83, 0.08);
-      border-radius: 8px;
+      border-radius: 6px;
     }
+
     .shift-day.vacation-day {
       color: var(--vacation-color);
       font-weight: 800;
-      font-size: 1.1em;
-      padding: 8px 0;
-      border-left: 5px solid var(--vacation-color);
-      padding-left: 15px;
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      padding: 6px 0;
+      border-left: 4px solid var(--vacation-color);
+      padding-left: 12px;
       background-color: rgba(255, 159, 67, 0.08);
-      border-radius: 8px;
+      border-radius: 6px;
     }
+
     .shift-day.rest-day .emoji,
     .shift-day.vacation-day .emoji {
-        margin-right: 15px;
+        margin-right: 12px;
     }
+
     .person-name {
       font-weight: 800;
       color: var(--text-dark);
-      margin-left: 5px;
+      margin-left: 4px;
     }
+
     .person-name.vacation {
       color: var(--vacation-color);
       text-decoration: line-through;
     }
+
     .info-text {
-        margin-left: 45px;
-        font-size: 0.95em;
+        margin-left: 35px;
+        font-size: 0.85em;
         color: var(--text-light);
-        margin-top: 5px;
+        margin-top: 4px;
         display: block;
         font-style: italic;
     }
     
     .feedback-info {
       padding: 0;
-      margin: 20px 0;
-    }
-    .feedback-item {
       margin: 15px 0;
-      font-size: 1em;
+    }
+
+    .feedback-item {
+      margin: 12px 0;
+      font-size: clamp(0.9rem, 2vw, 1rem);
       color: var(--text-medium);
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
     }
+
     .feedback-item .emoji {
-        margin-right: 10px;
-        font-size: 1.2em;
+        margin-right: 8px;
+        font-size: 1.1em;
     }
+
     .feedback-item strong {
         color: var(--text-dark);
-        width: 130px;
+        min-width: 110px;
         display: inline-block;
         font-weight: 700;
+        margin-right: 8px;
     }
+
     .rotation-list, .summary-list, .vacation-list {
       list-style-type: none;
       padding-left: 0;
-      font-size: 0.95em;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
       color: var(--text-medium);
     }
+
     .rotation-list li, .summary-list li, .vacation-list li {
-      margin-bottom: 12px;
-      padding-left: 30px;
+      margin-bottom: 10px;
+      padding-left: 25px;
       position: relative;
+      line-height: 1.4;
     }
+
     .rotation-list li:before, .summary-list li:before {
       content: "⭐";
       position: absolute;
       left: 0;
-      font-size: 1.1em;
+      font-size: 1em;
       line-height: 1;
     }
+
     .summary-list li:nth-child(1):before { content: "🏖️"; }
     .summary-list li:nth-child(2):before { content: "📧"; }
     .summary-list li:nth-child(3):before { content: "🔄"; }
+
     .vacation-list li:before {
       position: absolute;
       left: 0;
-      font-size: 1.1em;
+      font-size: 1em;
       line-height: 1;
     }
 
     .change-form {
       background-color: var(--bg-light);
       border: 1px solid var(--border-color);
-      padding: 25px;
-      border-radius: 15px;
-      margin-top: 25px;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 20px;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
     }
+
     .vacation-form {
       background-color: var(--bg-light);
       border: 1px solid var(--border-color);
-      padding: 20px;
-      border-radius: 12px;
+      padding: 15px;
+      border-radius: 10px;
       margin-top: 15px;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
     }
+
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
+
     .form-group label {
       display: block;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       color: var(--text-medium);
-      font-size: 0.95em;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
     }
+
     .form-group input, .form-group select {
-      width: calc(100% - 20px);
-      padding: 10px;
+      width: 100%;
+      padding: 10px 12px;
       border: 1px solid #D1D8E0;
       border-radius: 6px;
-      font-size: 1em;
+      font-size: clamp(0.9rem, 2vw, 1rem);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
       background-color: #F8F9FA;
       font-family: 'Inter', sans-serif;
     }
+
     .form-group input:focus, .form-group select:focus {
         border-color: var(--primary-accent);
         box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         outline: none;
     }
+
     .save-btn {
       background-image: linear-gradient(45deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
       color: white;
       border: none;
-      padding: 12px 20px;
+      padding: 12px 18px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 700;
       display: block;
-      margin-top: 20px;
+      margin-top: 15px;
       width: 100%;
-      font-size: 1.1em;
+      font-size: clamp(1rem, 2vw, 1.1rem);
       transition: all 0.2s ease;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
+
     .save-btn:hover {
       background-image: linear-gradient(45deg, var(--secondary-accent) 0%, var(--primary-accent) 100%);
       transform: translateY(-2px);
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
     }
+
     .save-btn:active {
         transform: translateY(0);
         box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     }
+
     .vacation-controls {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
     }
+
     .vacation-controls button {
       flex: 1;
+      min-width: 120px;
       padding: 8px 12px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.9em;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
       transition: all 0.2s ease;
     }
+
     .add-btn {
       background-color: var(--feedback-color);
       color: white;
     }
+
     .clear-btn {
       background-color: var(--resting-color);
       color: white;
     }
+
     .vacation-controls button:hover {
       opacity: 0.9;
       transform: translateY(-1px);
-    }
-
-    /* Column specific styling */
-    .left-column {
-        grid-column: 1;
-    }
-    .right-column {
-        grid-column: 2;
     }
 
     /* Toast notification */
@@ -363,95 +411,200 @@
       transform: translateX(-50%);
       background-color: #333;
       color: white;
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 4px;
       z-index: 1000;
       opacity: 0;
       transition: opacity 0.3s ease;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      text-align: center;
+      max-width: 90%;
     }
+
     .toast.show {
       opacity: 1;
     }
 
-    @media (max-width: 768px) {
-      body {
-        padding: 15px;
-      }
+    /* Responsive Grid Layout */
+    @media (min-width: 768px) {
       .container {
-        grid-template-columns: 1fr;
-        padding: 25px;
-        gap: 20px;
-        border-radius: 15px;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        padding: 30px;
       }
+
       h1 {
-        grid-column: span 1;
-        font-size: 2.2em;
+        grid-column: span 2;
         margin-bottom: 25px;
       }
-      h2 {
-        font-size: 1.3em;
-        margin-bottom: 20px;
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        padding: 30px;
       }
-      h3 {
-        font-size: 1.1em;
-        margin-top: 25px;
+
+      .container {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        padding: 35px;
+        border-radius: 18px;
       }
+
       .panel {
-        padding: 22px;
+        padding: 25px;
+        border-radius: 15px;
+      }
+
+      .capture-button {
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+      }
+
+      .capture-button svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+        gap: 35px;
+        padding: 40px;
+      }
+
+      .panel {
+        padding: 28px;
+      }
+    }
+
+    /* Mobile First Adjustments */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 15px;
+        gap: 15px;
         border-radius: 12px;
       }
-      .capture-button {
-          top: 10px;
-          right: 10px;
-          width: 32px;
-          height: 32px;
-          padding: 6px;
+
+      .panel {
+        padding: 15px;
+        border-radius: 10px;
       }
-      .capture-button svg {
-        width: 18px;
-        height: 18px;
-      }
+
       .date-range {
-        padding: 10px 15px;
-        font-size: 1em;
+        padding: 8px 12px;
+        margin: 12px 0;
       }
+
       .shift-day {
         margin: 10px 0;
-        font-size: 0.95em;
       }
-      .shift-day.rest-day,
-      .shift-day.vacation-day {
-        font-size: 1em;
-        padding: 6px 12px;
-      }
-      .info-text {
-        margin-left: 40px;
-        font-size: 0.9em;
-      }
+
       .feedback-item {
-        margin: 10px 0;
-        font-size: 0.9em;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
       }
+
       .feedback-item strong {
-        width: 110px;
+        min-width: auto;
+        margin-right: 0;
       }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-group input, .form-group select {
-        padding: 8px;
-        font-size: 0.95em;
-      }
-      .save-btn {
-        padding: 10px 15px;
-        font-size: 1em;
-      }
-      .rotation-list li, .summary-list li, .vacation-list li {
-        margin-bottom: 10px;
-        padding-left: 25px;
-      }
+
       .vacation-controls {
         flex-direction: column;
+      }
+
+      .vacation-controls button {
+        min-width: 100%;
+      }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 360px) {
+      body {
+        padding: 8px;
+      }
+
+      .container {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .panel {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      h2 {
+        font-size: 1.1rem;
+      }
+    }
+
+    /* High DPI screens */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .capture-button {
+        backdrop-filter: blur(10px);
+      }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-dark: #f8f9fa;
+        --text-medium: #e9ecef;
+        --text-light: #adb5bd;
+        --bg-light: #2d3748;
+        --bg-body-start: #1a202c;
+        --bg-body-end: #2d3748;
+        --border-color: #4a5568;
+      }
+
+      body {
+        background-color: var(--bg-body-start);
+      }
+
+      .container {
+        background: var(--bg-light);
+      }
+
+      .form-group input, .form-group select {
+        background-color: #4a5568;
+        border-color: #718096;
+        color: var(--text-dark);
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .container {
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .capture-button {
+        display: none;
+      }
+
+      .panel:hover {
+        transform: none;
+        box-shadow: none;
       }
     }
   </style>
@@ -460,7 +613,7 @@
   <div class="container">
     <h1>Encargados Fin de Semana <span class="emoji">🗓️</span></h1>
     
-    <div class="panel left-column" id="panelWeekend">
+    <div class="panel" id="panelWeekend">
         <button class="capture-button" onclick="copyPanelToClipboard('panelWeekend', 'Encargados fin de semana')" title="Copiar imagen">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v8H8V8zm2 2v4h4v-4h-4z"/></svg>
         </button>
@@ -475,7 +628,7 @@
         </div>
     </div>
 
-    <div class="panel right-column" id="panelChanges">
+    <div class="panel" id="panelChanges">
         <button class="capture-button" onclick="copyPanelToClipboard('panelChanges', 'Gestión de vacaciones')" title="Copiar imagen">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v8H8V8zm2 2v4h4v-4h-4z"/></svg>
         </button>
@@ -515,7 +668,7 @@
         </div>
     </div>
     
-    <div class="panel left-column" id="panelFeedback">
+    <div class="panel" id="panelFeedback">
         <button class="capture-button" onclick="copyPanelToClipboard('panelFeedback', 'Retroalimentaciones')" title="Copiar imagen">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v8H8V8zm2 2v4h4v-4h-4z"/></svg>
         </button>
@@ -528,7 +681,7 @@
         </div>
     </div>
 
-    <div class="panel right-column" id="panelActions">
+    <div class="panel" id="panelActions">
         <button class="capture-button" onclick="copyPanelToClipboard('panelActions', 'Cambios manuales')" title="Copiar imagen">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm2 2h8v8H8V8zm2 2v4h4v-4h-4z"/></svg>
         </button>
@@ -562,6 +715,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
+    // ... (todo el JavaScript anterior se mantiene exactamente igual) ...
     const workers = ["Marvin", "Eli", "Juan"];
     
     // Fecha de inicio de la rotación (primer sábado de 2025)
