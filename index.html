@@ -1025,7 +1025,7 @@
             // MOSTRAR LAS FECHAS EXACTAS COMO SE GUARDARON
             li.innerHTML = `
                 <span aria-hidden="true">${isCurrent ? "🏖️" : (isPast ? "✅" : "⛱️")}</span>
-                <span class="sr-only">/span>
+                
                 <strong>${vacation.person}:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}
                 ${isCurrent ? " <span style='color: var(--vacation-color);'>(En curso)</span>" : ""}
                 ${isPast ? " <span style='color: var(--text-light);'>(Finalizada)</span>" : ""}
