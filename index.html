@@ -715,7 +715,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    // ... (todo el JavaScript anterior se mantiene exactamente igual) ...
     const workers = ["Marvin", "Eli", "Juan"];
     
     // Fecha de inicio de la rotación (primer sábado de 2025)
@@ -744,11 +743,11 @@
         if (savedVacations) {
             vacationData = JSON.parse(savedVacations);
         } else {
-            // Datos de ejemplo iniciales
+            // Datos de ejemplo iniciales - CORREGIDOS para evitar desplazamiento
             vacationData = [
-                { person: "Eli", start: "2025-09-29", end: "2025-10-13" },
-                { person: "Juan", start: "2025-11-17", end: "2025-12-01" },
-                { person: "Marvin", start: "2025-12-08", end: "2025-12-22" }
+                { person: "Eli", start: "2025-09-28", end: "2025-10-12" },
+                { person: "Juan", start: "2025-11-16", end: "2025-11-30" },
+                { person: "Marvin", start: "2025-12-07", end: "2025-12-22" }
             ];
             saveVacationsToStorage();
         }
@@ -759,20 +758,25 @@
         localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
     }
 
+    // FUNCIÓN CORREGIDA: Manejo correcto de fechas sin desplazamiento
     function parseDate(dateString) {
         if (dateString.includes('/')) {
             const [day, month, year] = dateString.split('/').map(Number);
-            return new Date(year, month - 1, day);
+            // Crear fecha en UTC para evitar problemas de zona horaria
+            return new Date(Date.UTC(year, month - 1, day));
         } else {
-            // Formato YYYY-MM-DD
-            return new Date(dateString);
+            // Formato YYYY-MM-DD - usar UTC para evitar desplazamiento
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(Date.UTC(year, month - 1, day));
         }
     }
 
+    // FUNCIÓN CORREGIDA: Formatear fecha sin desplazamiento
     function formatDate(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
+        // Usar métodos UTC para evitar problemas de zona horaria
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
         return `${day}/${month}/${year}`;
     }
 
@@ -832,17 +836,22 @@
         };
     }
 
-    // Función para verificar si una persona está de vacaciones en una fecha específica
+    // FUNCIÓN CORREGIDA: Verificar vacaciones sin problemas de fecha
     function isPersonOnVacation(person, date) {
         for (const vacation of vacationData) {
             if (vacation.person === person) {
                 const startDate = parseDate(vacation.start);
                 const endDate = parseDate(vacation.end);
                 
-                // Ajustar la fecha de fin para incluir todo el día
-                endDate.setHours(23, 59, 59, 999);
+                // Crear fechas de comparación en UTC para evitar problemas de zona horaria
+                const checkDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                const utcStartDate = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+                const utcEndDate = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
                 
-                if (date >= startDate && date <= endDate) {
+                // Ajustar la fecha de fin para incluir todo el día
+                utcEndDate.setUTCHours(23, 59, 59, 999);
+                
+                if (checkDate >= utcStartDate && checkDate <= utcEndDate) {
                     return true;
                 }
             }
@@ -924,7 +933,7 @@
       return { saturday: nextSaturday, sunday: nextSunday };
     }
 
-    // Función para agregar vacaciones
+    // FUNCIÓN CORREGIDA: Agregar vacaciones sin desplazamiento de fechas
     function addVacation() {
         const person = document.getElementById('vacationPerson').value;
         const start = document.getElementById('vacationStart').value;
@@ -946,6 +955,7 @@
         );
         
         if (existingIndex === -1) {
+            // GUARDAR LAS FECHAS EXACTAMENTE COMO SE INGRESAN
             vacationData.push({ person, start, end });
             saveVacationsToStorage();
             updateVacationList();
@@ -983,7 +993,7 @@
         }
     }
 
-    // Función para actualizar la lista de vacaciones en la interfaz
+    // FUNCIÓN CORREGIDA: Actualizar lista de vacaciones mostrando fechas exactas
     function updateVacationList() {
         const vacationList = document.getElementById("vacationList");
         vacationList.innerHTML = "";
@@ -1003,10 +1013,16 @@
             const startDate = parseDate(vacation.start);
             const endDate = parseDate(vacation.end);
             const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const isCurrent = today >= startDate && today <= endDate;
-            const isPast = today > endDate;
             
+            // Crear fechas UTC para comparación sin problemas de zona horaria
+            const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+            const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+            const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+            
+            const isCurrent = todayUTC >= startUTC && todayUTC <= endUTC;
+            const isPast = todayUTC > endUTC;
+            
+            // MOSTRAR LAS FECHAS EXACTAS COMO SE GUARDARON
             li.innerHTML = `
                 <span aria-hidden="true">${isCurrent ? "🏖️" : (isPast ? "✅" : "⛱️")}</span>
                 <span class="sr-only">Icono de vacaciones</span>
