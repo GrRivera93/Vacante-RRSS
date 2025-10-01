@@ -676,7 +676,7 @@
         <div class="date-range" id="feedbackDates"></div>
         
         <div class="feedback-info">
-            <div class="feedback-item"><span class="emoji">⬅️</span> <strong>Última Retro:</strong> <span id="lastFeedback"></span></div>
+            <div class="feedback-item"><span class="emoji">⬅️</span> <strong>Retro:</strong> <span id="lastFeedback"></span></div>
             <div class="feedback-item"><span class="emoji">🔜</span> <strong>Próxima Retro:</strong> <span id="nextFeedback"></span></div>
         </div>
     </div>
@@ -1025,7 +1025,7 @@
             // MOSTRAR LAS FECHAS EXACTAS COMO SE GUARDARON
             li.innerHTML = `
                 <span aria-hidden="true">${isCurrent ? "🏖️" : (isPast ? "✅" : "⛱️")}</span>
-                <span class="sr-only">Icono de vacaciones</span>
+                <span class="sr-only">/span>
                 <strong>${vacation.person}:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}
                 ${isCurrent ? " <span style='color: var(--vacation-color);'>(En curso)</span>" : ""}
                 ${isPast ? " <span style='color: var(--text-light);'>(Finalizada)</span>" : ""}
