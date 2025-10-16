@@ -7,6 +7,7 @@
   <title>Encargados Fin de Semana</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* Todos los estilos CSS se mantienen igual */
     :root {
         --primary-accent: #fd0000e5;
         --secondary-accent: #bdbdc2;
@@ -722,10 +723,10 @@
     
     // Patrón de rotación base (3 semanas de ciclo)
     const ROTATION_PATTERN = [
-    { sat: "Eli", sun: "Juan", rest: "Marvin" },
-    { sat: "Marvin", sun: "Eli", rest: "Juan" },
-    { sat: "Juan", sun: "Marvin", rest: "Eli" }
-];
+        { sat: "Eli", sun: "Juan", rest: "Marvin" },
+        { sat: "Marvin", sun: "Eli", rest: "Juan" },
+        { sat: "Juan", sun: "Marvin", rest: "Eli" }
+    ];
 
     // ÚLTIMA RETROALIMENTACIÓN REAL ENVIADA (viernes 19/09/2025 por Juan)
     const LAST_RETRO_DATE = new Date(2025, 8, 19); // 19/09/2025
@@ -780,14 +781,40 @@
         return `${day}/${month}/${year}`;
     }
 
-    // Función para calcular la rotación para cualquier fecha futura
+    // Función para calcular la rotación CORREGIDA - pausa durante vacaciones
     function calculateRotationForDate(targetSaturday) {
         // Calcular la diferencia en semanas desde la fecha de inicio
         const timeDiff = targetSaturday.getTime() - START_DATE.getTime();
-        const weekDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 7));
+        let weekDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 7));
+        
+        // Ajustar por semanas donde hubo vacaciones (pausa en la rotación)
+        let adjustedWeekDiff = weekDiff;
+        
+        // Revisar cada semana desde el inicio hasta la fecha objetivo
+        for (let week = 0; week <= weekDiff; week++) {
+            const checkDate = new Date(START_DATE);
+            checkDate.setDate(START_DATE.getDate() + (week * 7));
+            
+            // Verificar si en esta semana alguien estaba de vacaciones
+            let hadVacations = false;
+            for (const person of workers) {
+                if (isPersonOnVacation(person, checkDate)) {
+                    hadVacations = true;
+                    break;
+                }
+            }
+            
+            // Si hubo vacaciones en esta semana, no contar esta semana en la rotación
+            if (hadVacations) {
+                adjustedWeekDiff--;
+            }
+        }
+        
+        // Asegurarse de que no sea negativo
+        adjustedWeekDiff = Math.max(0, adjustedWeekDiff);
         
         // Determinar el índice del patrón (ciclo de 3 semanas)
-        const patternIndex = weekDiff % ROTATION_PATTERN.length;
+        const patternIndex = adjustedWeekDiff % ROTATION_PATTERN.length;
         
         // Obtener la rotación base
         const baseRotation = {...ROTATION_PATTERN[patternIndex]};
