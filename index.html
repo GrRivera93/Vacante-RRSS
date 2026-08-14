@@ -1,3 +1,5 @@
+weekend_rotation_token
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,6 +9,7 @@
   <title>Encargados Fin de Semana</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* Todos los estilos CSS se mantienen igual */
     :root {
         --primary-accent: #fd0000e5;
         --secondary-accent: #bdbdc2;
@@ -403,31 +406,7 @@
       transform: translateY(-1px);
     }
 
-    .sync-status {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.7em;
-      font-weight: 600;
-      margin-left: 10px;
-    }
-    .sync-status.online {
-      background: #26DE81;
-      color: white;
-    }
-    .sync-status.offline {
-      background: #EE5253;
-      color: white;
-    }
-    .sync-status.syncing {
-      background: #FF9F43;
-      color: white;
-    }
-    .sync-status.saved {
-      background: #3498db;
-      color: white;
-    }
-
+    /* Toast notification */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -449,22 +428,7 @@
       opacity: 1;
     }
 
-    .last-update {
-      font-size: 0.8em;
-      color: var(--text-light);
-      text-align: center;
-      margin-top: 10px;
-      padding: 8px;
-      background: var(--bg-light);
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      grid-column: 1 / -1;
-    }
-
-    .last-update strong {
-      color: var(--text-dark);
-    }
-
+    /* Responsive Grid Layout */
     @media (min-width: 768px) {
       .container {
         grid-template-columns: 1fr 1fr;
@@ -521,6 +485,7 @@
       }
     }
 
+    /* Mobile First Adjustments */
     @media (max-width: 480px) {
       body {
         padding: 10px;
@@ -566,6 +531,7 @@
       }
     }
 
+    /* Extra small devices */
     @media (max-width: 360px) {
       body {
         padding: 8px;
@@ -589,12 +555,14 @@
       }
     }
 
+    /* High DPI screens */
     @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
       .capture-button {
         backdrop-filter: blur(10px);
       }
     }
 
+    /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       :root {
         --text-dark: #f8f9fa;
@@ -621,6 +589,7 @@
       }
     }
 
+    /* Print styles */
     @media print {
       body {
         background: white;
@@ -645,10 +614,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>
-      Encargados Fin de Semana 🗓️
-      <span id="syncStatus" class="sync-status syncing">🔄 Cargando...</span>
-    </h1>
+    <h1>Encargados Fin de Semana <span class="emoji">🗓️</span></h1>
     
     <div class="panel" id="panelWeekend">
         <button class="capture-button" onclick="copyPanelToClipboard('panelWeekend', 'Encargados fin de semana')" title="Copiar imagen">
@@ -700,6 +666,7 @@
         <div class="vacation-section">
             <h3>Vacaciones Programadas <span aria-hidden="true">📅</span></h3>
             <ul class="vacation-list" id="vacationList">
+                <!-- Las vacaciones se cargarán dinámicamente -->
             </ul>
         </div>
     </div>
@@ -739,299 +706,98 @@
         <div class="changes-section">
             <h3>Resumen Semanal: <span class="emoji">📈</span></h3>
             <ul class="summary-list" id="weeklySummary">
+                <!-- El resumen se cargará dinámicamente -->
             </ul>
         </div>
     </div>
 
-    <div class="last-update" id="lastUpdateInfo">
-        ⏱️ Última actualización: <strong id="lastUpdateTime">Cargando...</strong>
-        <span style="margin-left: 15px;">🔄 Sincronización automática cada 10 segundos</span>
-    </div>
-
   </div>
 
+  <!-- Toast notification -->
   <div id="toast" class="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
   <script>
-    // ======================================================
-    // CONFIGURACIÓN DE GITHUB
-    // ======================================================
-    const GITHUB_CONFIG = {
-      owner: 'GrRivera93',
-      repo: 'Vacante-RRSS',
-      path: 'data.json',
-      branch: 'main'
-    };
-
-    // ⚠️ REEMPLAZA CON TU TOKEN
-    const GITHUB_TOKEN = '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';
-
-    // ======================================================
-    // VARIABLES GLOBALES
-    // ======================================================
-    let vacationData = [];
-    let ultimaActualizacion = null;
-    let estaGuardando = false;
-
-    // ======================================================
-    // FUNCIONES DE GITHUB
-    // ======================================================
-    
-    async function loadDataFromGithub() {
-      try {
-        const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.path}`;
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            console.log('📄 Archivo data.json no encontrado, creando...');
-            return createDefaultData();
-          }
-          throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('✅ Datos cargados desde GitHub');
-        return data;
-      } catch (error) {
-        console.error('❌ Error cargando desde GitHub:', error);
-        return null;
-      }
-    }
-
-    async function saveDataToGithub(data) {
-      if (estaGuardando) {
-        console.log('⏳ Ya hay un guardado en curso...');
-        return null;
-      }
-
-      try {
-        estaGuardando = true;
-        updateSyncStatus('syncing', '💾 Guardando...');
-
-        if (!GITHUB_TOKEN || GITHUB_TOKEN === 'TU_TOKEN_AQUI') {
-          throw new Error('❌ Token de GitHub no configurado');
-        }
-
-        const sha = await getFileSha();
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-        const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-        
-        const body = {
-          message: `Actualización: ${new Date().toISOString()}`,
-          content: content,
-          branch: GITHUB_CONFIG.branch
-        };
-        if (sha) body.sha = sha;
-        
-        const response = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body)
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(`Error GitHub: ${error.message}`);
-        }
-
-        ultimaActualizacion = new Date();
-        actualizarTimestamp();
-
-        console.log('✅ Datos guardados en GitHub');
-        updateSyncStatus('saved', '✅ Guardado');
-        showToast('✅ Cambios guardados en GitHub');
-        return await response.json();
-      } catch (error) {
-        console.error('❌ Error guardando:', error);
-        showToast('❌ Error al guardar: ' + error.message);
-        updateSyncStatus('offline', '❌ Error');
-        return null;
-      } finally {
-        estaGuardando = false;
-      }
-    }
-
-    async function getFileSha() {
-      try {
-        if (!GITHUB_TOKEN || GITHUB_TOKEN === 'TU_TOKEN_AQUI') return null;
-        
-        const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
-        const response = await fetch(url, {
-          headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-        });
-        
-        if (response.status === 404) return null;
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        
-        const data = await response.json();
-        return data.sha;
-      } catch (error) {
-        console.error('Error obteniendo SHA:', error);
-        return null;
-      }
-    }
-
-    function createDefaultData() {
-      return {
-        vacations: [
-          { person: "Eli", start: "2025-09-28", end: "2025-10-12" },
-          { person: "Juan", start: "2025-11-16", end: "2025-11-30" },
-          { person: "Marvin", start: "2025-12-07", end: "2025-12-22" }
-        ],
-        manualChanges: {
-          saturday: "Eli",
-          sunday: "Juan",
-          resting: "Marvin"
-        },
-        feedback: {
-          lastRetro: null,
-          nextRetro: null,
-          rotation: ["Juan", "Eli", "Marvin"]
-        },
-        lastUpdated: new Date().toISOString(),
-        history: []
-      };
-    }
-
-    // ======================================================
-    // FUNCIONES DE ESTADO
-    // ======================================================
-    
-    function updateSyncStatus(status, message) {
-      const statusElement = document.getElementById('syncStatus');
-      if (statusElement) {
-        statusElement.textContent = message;
-        statusElement.className = `sync-status ${status}`;
-      }
-    }
-
-    function actualizarTimestamp() {
-      const timeElement = document.getElementById('lastUpdateTime');
-      if (timeElement && ultimaActualizacion) {
-        const options = { 
-          day: '2-digit', 
-          month: '2-digit', 
-          year: 'numeric',
-          hour: '2-digit', 
-          minute: '2-digit', 
-          second: '2-digit',
-          hour12: false
-        };
-        timeElement.textContent = ultimaActualizacion.toLocaleString('es-ES', options);
-      }
-    }
-
-    // ======================================================
-    // FUNCIÓN PRINCIPAL DE GUARDADO
-    // ======================================================
-    
-    async function guardarCambios() {
-      const data = {
-        vacations: vacationData,
-        manualChanges: {
-          saturday: document.getElementById('saturdayName').textContent,
-          sunday: document.getElementById('sundayName').textContent,
-          resting: document.getElementById('restingName').textContent
-        },
-        lastUpdated: new Date().toISOString()
-      };
-      
-      const resultado = await saveDataToGithub(data);
-      
-      if (resultado) {
-        localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
-        localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
-      }
-      
-      return resultado;
-    }
-
-    // ======================================================
-    // FUNCIÓN PARA RECARGAR DATOS DESDE GITHUB
-    // ======================================================
-    
-    async function recargarDatos() {
-      try {
-        const githubData = await loadDataFromGithub();
-        
-        if (githubData && githubData.vacations) {
-          // Aplicar datos de GitHub
-          vacationData = githubData.vacations || [];
-          updateVacationList();
-          
-          if (githubData.manualChanges) {
-            if (githubData.manualChanges.saturday) {
-              document.getElementById('saturdayName').textContent = githubData.manualChanges.saturday;
-            }
-            if (githubData.manualChanges.sunday) {
-              document.getElementById('sundayName').textContent = githubData.manualChanges.sunday;
-            }
-            if (githubData.manualChanges.resting) {
-              document.getElementById('restingName').textContent = githubData.manualChanges.resting;
-            }
-          }
-          
-          updateRotation();
-          ultimaActualizacion = githubData.lastUpdated ? new Date(githubData.lastUpdated) : new Date();
-          actualizarTimestamp();
-          
-          localStorage.setItem('weekendRotationData_backup', JSON.stringify(githubData));
-          localStorage.setItem('weekendRotationVacations', JSON.stringify(githubData.vacations));
-          
-          updateSyncStatus('online', '✅ Actualizado');
-          console.log('📥 Datos recargados desde GitHub');
-        }
-      } catch (error) {
-        console.error('❌ Error recargando:', error);
-      }
-    }
-
-    // ======================================================
-    // TU CÓDIGO ORIGINAL
-    // ======================================================
-    
     const workers = ["Marvin", "Eli", "Juan"];
-    const START_DATE = new Date(2025, 0, 4);
+    
+    // Fecha de inicio de la rotación (primer sábado de 2025)
+    const START_DATE = new Date(2025, 0, 4); // 04/01/2025
+    
+    // Patrón de rotación base (3 semanas de ciclo)
     const ROTATION_PATTERN = [
         { sat: "Eli", sun: "Juan", rest: "Marvin" },
         { sat: "Marvin", sun: "Eli", rest: "Juan" },
         { sat: "Juan", sun: "Marvin", rest: "Eli" }
     ];
-    const LAST_RETRO_DATE = new Date(2025, 8, 19);
+
+    // ÚLTIMA RETROALIMENTACIÓN REAL ENVIADA (viernes 19/09/2025 por Juan)
+    const LAST_RETRO_DATE = new Date(2025, 8, 19); // 19/09/2025
     const LAST_RETRO_PERSON = "Juan";
+
+    // Orden de rotación de retroalimentaciones
     const RETRO_ROTATION = ["Juan", "Eli", "Marvin"];
 
+    // Vacaciones (se cargan desde localStorage)
+    let vacationData = [];
+
+    // Cargar vacaciones desde localStorage al iniciar
+    function loadVacationsFromStorage() {
+        const savedVacations = localStorage.getItem('weekendRotationVacations');
+        if (savedVacations) {
+            vacationData = JSON.parse(savedVacations);
+        } else {
+            // Datos de ejemplo iniciales - CORREGIDOS para evitar desplazamiento
+            vacationData = [
+                { person: "Eli", start: "2025-09-28", end: "2025-10-12" },
+                { person: "Juan", start: "2025-11-16", end: "2025-11-30" },
+                { person: "Marvin", start: "2025-12-07", end: "2025-12-22" }
+            ];
+            saveVacationsToStorage();
+        }
+    }
+
+    // Guardar vacaciones en localStorage
+    function saveVacationsToStorage() {
+        localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
+    }
+
+    // FUNCIÓN CORREGIDA: Manejo correcto de fechas sin desplazamiento
     function parseDate(dateString) {
         if (dateString.includes('/')) {
             const [day, month, year] = dateString.split('/').map(Number);
+            // Crear fecha en UTC para evitar problemas de zona horaria
             return new Date(Date.UTC(year, month - 1, day));
         } else {
+            // Formato YYYY-MM-DD - usar UTC para evitar desplazamiento
             const [year, month, day] = dateString.split('-').map(Number);
             return new Date(Date.UTC(year, month - 1, day));
         }
     }
 
+    // FUNCIÓN CORREGIDA: Formatear fecha sin desplazamiento
     function formatDate(date) {
+        // Usar métodos UTC para evitar problemas de zona horaria
         const day = String(date.getUTCDate()).padStart(2, '0');
         const month = String(date.getUTCMonth() + 1).padStart(2, '0');
         const year = date.getUTCFullYear();
         return `${day}/${month}/${year}`;
     }
 
+    // Función para calcular la rotación CORREGIDA - pausa durante vacaciones
     function calculateRotationForDate(targetSaturday) {
+        // Calcular la diferencia en semanas desde la fecha de inicio
         const timeDiff = targetSaturday.getTime() - START_DATE.getTime();
         let weekDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 7));
+        
+        // Ajustar por semanas donde hubo vacaciones (pausa en la rotación)
         let adjustedWeekDiff = weekDiff;
         
+        // Revisar cada semana desde el inicio hasta la fecha objetivo
         for (let week = 0; week <= weekDiff; week++) {
             const checkDate = new Date(START_DATE);
             checkDate.setDate(START_DATE.getDate() + (week * 7));
+            
+            // Verificar si en esta semana alguien estaba de vacaciones
             let hadVacations = false;
             for (const person of workers) {
                 if (isPersonOnVacation(person, checkDate)) {
@@ -1039,48 +805,81 @@
                     break;
                 }
             }
+            
+            // Si hubo vacaciones en esta semana, no contar esta semana en la rotación
             if (hadVacations) {
                 adjustedWeekDiff--;
             }
         }
         
+        // Asegurarse de que no sea negativo
         adjustedWeekDiff = Math.max(0, adjustedWeekDiff);
+        
+        // Determinar el índice del patrón (ciclo de 3 semanas)
         const patternIndex = adjustedWeekDiff % ROTATION_PATTERN.length;
+        
+        // Obtener la rotación base
         const baseRotation = {...ROTATION_PATTERN[patternIndex]};
+        
         return baseRotation;
     }
 
+    // FUNCIÓN CORREGIDA PARA CALCULAR RETROALIMENTACIONES
     function getFeedbackInfo(currentSaturday) {
         let lastFeedback = null;
         let nextFeedback = null;
+
+        // Calcular el viernes correspondiente a esta semana
         const currentFriday = new Date(currentSaturday);
         currentFriday.setDate(currentSaturday.getDate() - 1);
+
+        // Encontrar la última retroalimentación que ya pasó
         let lastRetroDate = new Date(LAST_RETRO_DATE);
         let lastRetroPerson = LAST_RETRO_PERSON;
         
+        // Avanzar hasta encontrar la última retro que ya pasó
         while (lastRetroDate <= currentFriday) {
+            // Guardar la retro actual como última
             lastFeedback = { date: new Date(lastRetroDate), person: lastRetroPerson };
+            
+            // Calcular la siguiente retro (2 semanas después)
             const nextRetroDate = new Date(lastRetroDate);
             nextRetroDate.setDate(lastRetroDate.getDate() + 14);
+            
+            // Determinar quién le toca en la siguiente retro
             const currentIndex = RETRO_ROTATION.indexOf(lastRetroPerson);
             const nextIndex = (currentIndex + 1) % RETRO_ROTATION.length;
             const nextRetroPerson = RETRO_ROTATION[nextIndex];
+            
+            // Preparar para la siguiente iteración
             lastRetroDate = nextRetroDate;
             lastRetroPerson = nextRetroPerson;
         }
+
+        // La próxima retroalimentación es la que encontramos que aún no ha pasado
         nextFeedback = { date: lastRetroDate, person: lastRetroPerson };
-        return { last: lastFeedback, next: nextFeedback };
+
+        return {
+            last: lastFeedback,
+            next: nextFeedback
+        };
     }
 
+    // FUNCIÓN CORREGIDA: Verificar vacaciones sin problemas de fecha
     function isPersonOnVacation(person, date) {
         for (const vacation of vacationData) {
             if (vacation.person === person) {
                 const startDate = parseDate(vacation.start);
                 const endDate = parseDate(vacation.end);
+                
+                // Crear fechas de comparación en UTC para evitar problemas de zona horaria
                 const checkDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
                 const utcStartDate = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
                 const utcEndDate = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+                
+                // Ajustar la fecha de fin para incluir todo el día
                 utcEndDate.setUTCHours(23, 59, 59, 999);
+                
                 if (checkDate >= utcStartDate && checkDate <= utcEndDate) {
                     return true;
                 }
@@ -1089,26 +888,66 @@
         return false;
     }
 
+    // Función para obtener las personas disponibles (no de vacaciones) en una fecha
     function getAvailableWorkers(date) {
         return workers.filter(person => !isPersonOnVacation(person, date));
     }
 
+    // Función para ajustar la rotación teniendo en cuenta las vacaciones
     function adjustRotationForVacations(baseRotation, date) {
         const availableWorkers = getAvailableWorkers(date);
+        
+        // Si todos están disponibles, usar la rotación base
         if (availableWorkers.length === 3) {
             return {...baseRotation, adjusted: false};
         }
+        
+        // Si hay 2 disponibles, redistribuir los turnos
         if (availableWorkers.length === 2) {
+            // Determinar quién está de vacaciones
             const personOnVacation = workers.find(person => !availableWorkers.includes(person));
+            
+            // Si la persona de vacaciones es la que debería descansar, simplemente asignar a los dos disponibles
             if (baseRotation.rest === personOnVacation) {
-                return { sat: baseRotation.sat, sun: baseRotation.sun, rest: personOnVacation, adjusted: true, vacationPerson: personOnVacation };
+                return {
+                    sat: baseRotation.sat,
+                    sun: baseRotation.sun,
+                    rest: personOnVacation,
+                    adjusted: true,
+                    vacationPerson: personOnVacation
+                };
             }
-            return { sat: availableWorkers[0], sun: availableWorkers[1], rest: personOnVacation, adjusted: true, vacationPerson: personOnVacation };
+            
+            // Si la persona de vacaciones debería trabajar, redistribuir
+            // En este caso, ambos disponibles trabajan y no hay descanso
+            return {
+                sat: availableWorkers[0],
+                sun: availableWorkers[1],
+                rest: personOnVacation,
+                adjusted: true,
+                vacationPerson: personOnVacation
+            };
         }
+        
+        // Si solo hay 1 disponible (caso extremo)
         if (availableWorkers.length === 1) {
-            return { sat: availableWorkers[0], sun: availableWorkers[0], rest: "N/A", adjusted: true, vacationPerson: workers.filter(person => person !== availableWorkers[0]).join(" y ") };
+            return {
+                sat: availableWorkers[0],
+                sun: availableWorkers[0],
+                rest: "N/A",
+                adjusted: true,
+                vacationPerson: workers.filter(person => person !== availableWorkers[0]).join(" y ")
+            };
         }
-        return { sat: "N/A", sun: "N/A", rest: "N/A", adjusted: true, vacationPerson: "Todos" };
+        
+        // Si no hay nadie disponible (caso extremo)
+        return {
+            sat: "N/A",
+            sun: "N/A",
+            rest: "N/A",
+            adjusted: true,
+            vacationPerson: "Todos"
+        };
     }
 
     function getNextWeekend() {
@@ -1116,15 +955,14 @@
       const day = today.getDay();
       const nextSaturday = new Date(today);
       nextSaturday.setDate(today.getDate() + ((6 - day + 7) % 7));
+
       const nextSunday = new Date(nextSaturday);
       nextSunday.setDate(nextSaturday.getDate() + 1);
+
       return { saturday: nextSaturday, sunday: nextSunday };
     }
 
-    // ======================================================
-    // FUNCIONES MODIFICADAS CON GUARDADO AUTOMÁTICO
-    // ======================================================
-
+    // FUNCIÓN CORREGIDA: Agregar vacaciones sin desplazamiento de fechas
     function addVacation() {
         const person = document.getElementById('vacationPerson').value;
         const start = document.getElementById('vacationStart').value;
@@ -1140,16 +978,20 @@
             return;
         }
         
+        // Verificar si ya existe una vacación para esta persona en estas fechas
         const existingIndex = vacationData.findIndex(v => 
             v.person === person && v.start === start && v.end === end
         );
         
         if (existingIndex === -1) {
+            // GUARDAR LAS FECHAS EXACTAMENTE COMO SE INGRESAN
             vacationData.push({ person, start, end });
+            saveVacationsToStorage();
             updateVacationList();
             updateRotation();
-            guardarCambios();
-            showToast(`✅ Vacaciones agregadas para ${person}`);
+            showToast(`Vacaciones agregadas para ${person}`);
+            
+            // Limpiar los campos
             document.getElementById('vacationStart').value = '';
             document.getElementById('vacationEnd').value = '';
         } else {
@@ -1157,27 +999,30 @@
         }
     }
 
+    // Función para limpiar todas las vacaciones
     function clearVacations() {
         if (confirm('¿Estás seguro de que quieres eliminar todas las vacaciones?')) {
             vacationData = [];
+            saveVacationsToStorage();
             updateVacationList();
             updateRotation();
-            guardarCambios();
             showToast('Todas las vacaciones han sido eliminadas');
         }
     }
 
+    // Función para eliminar una vacación específica
     function removeVacation(index) {
         const vacation = vacationData[index];
         if (confirm(`¿Eliminar vacaciones de ${vacation.person} (${formatDate(parseDate(vacation.start))} - ${formatDate(parseDate(vacation.end))})?`)) {
             vacationData.splice(index, 1);
+            saveVacationsToStorage();
             updateVacationList();
             updateRotation();
-            guardarCambios();
             showToast('Vacaciones eliminadas');
         }
     }
 
+    // FUNCIÓN CORREGIDA: Actualizar lista de vacaciones mostrando fechas exactas
     function updateVacationList() {
         const vacationList = document.getElementById("vacationList");
         vacationList.innerHTML = "";
@@ -1187,6 +1032,7 @@
             return;
         }
         
+        // Ordenar por fecha de inicio
         const sortedVacations = [...vacationData].sort((a, b) => 
             new Date(a.start) - new Date(b.start)
         );
@@ -1196,14 +1042,19 @@
             const startDate = parseDate(vacation.start);
             const endDate = parseDate(vacation.end);
             const today = new Date();
+            
+            // Crear fechas UTC para comparación sin problemas de zona horaria
             const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
             const startUTC = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
             const endUTC = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+            
             const isCurrent = todayUTC >= startUTC && todayUTC <= endUTC;
             const isPast = todayUTC > endUTC;
             
+            // MOSTRAR LAS FECHAS EXACTAS COMO SE GUARDARON
             li.innerHTML = `
                 <span aria-hidden="true">${isCurrent ? "🏖️" : (isPast ? "✅" : "⛱️")}</span>
+                
                 <strong>${vacation.person}:</strong> ${formatDate(startDate)} - ${formatDate(endDate)}
                 ${isCurrent ? " <span style='color: var(--vacation-color);'>(En curso)</span>" : ""}
                 ${isPast ? " <span style='color: var(--text-light);'>(Finalizada)</span>" : ""}
@@ -1213,6 +1064,7 @@
         });
     }
 
+    // Función para guardar cambios manuales
     function saveManualChanges() {
         const saturdayInput = document.getElementById("saturdayWorker").value.trim();
         const sundayInput = document.getElementById("sundayWorker").value.trim();
@@ -1237,14 +1089,17 @@
             <li>Cambio manual aplicado</li>
         `;
 
-        guardarCambios();
-        showToast('✅ Cambios manuales guardados');
+        showToast('Cambios manuales guardados');
     }
 
     function updateRotation() {
         const { saturday, sunday } = getNextWeekend();
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+        // Calcular la rotación para la fecha objetivo
         const baseRotation = calculateRotationForDate(saturday);
+        
+        // Ajustar la rotación según las vacaciones
         const adjustedRotation = adjustRotationForVacations(baseRotation, saturday);
         
         document.getElementById("weekendDates").textContent = `${saturday.toLocaleDateString('es-ES', options)} - ${sunday.toLocaleDateString('es-ES', options)}`;
@@ -1252,6 +1107,7 @@
         document.getElementById("sundayName").textContent = adjustedRotation.sun;
         document.getElementById("restingName").textContent = adjustedRotation.rest;
 
+        // Mostrar información de vacaciones si la rotación fue ajustada
         const vacationInfo = document.getElementById("vacationInfo");
         const vacationName = document.getElementById("vacationName");
         
@@ -1263,6 +1119,7 @@
         }
 
         const summaryList = document.getElementById("weeklySummary");
+        
         if (adjustedRotation.adjusted) {
             summaryList.innerHTML = `
                 <li>${adjustedRotation.rest} tiene fin de semana libre</li>
@@ -1276,6 +1133,7 @@
         }
 
         const feedbackInfo = getFeedbackInfo(saturday);
+
         document.getElementById("feedbackDates").textContent = `${saturday.toLocaleDateString('es-ES', options)} - ${sunday.toLocaleDateString('es-ES', options)}`;
         
         if (feedbackInfo.last) {
@@ -1291,15 +1149,18 @@
         }
     }
 
+    // Función para mostrar notificación toast
     function showToast(message) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.classList.add('show');
+        
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
     }
 
+    // Función para copiar el panel al portapapeles como imagen
     async function copyPanelToClipboard(panelId, panelName) {
         const panelElement = document.getElementById(panelId);
         if (!panelElement) {
@@ -1320,8 +1181,10 @@
                 allowTaint: true,
             });
 
+            // Convertir el canvas a blob
             canvas.toBlob(async (blob) => {
                 try {
+                    // Copiar el blob al portapapeles
                     await navigator.clipboard.write([
                         new ClipboardItem({
                             [blob.type]: blob
@@ -1331,6 +1194,8 @@
                 } catch (err) {
                     console.error('Error al copiar al portapapeles:', err);
                     showToast('Error al copiar la imagen');
+                    
+                    // Fallback: Descargar la imagen si no se puede copiar
                     const link = document.createElement('a');
                     link.download = `${panelName || panelId}.png`;
                     link.href = canvas.toDataURL('image/png');
@@ -1349,94 +1214,20 @@
         }
     }
 
-    // ======================================================
-    // INICIALIZACIÓN
-    // ======================================================
-    
-    async function initApp() {
-      updateSyncStatus('syncing', '🔄 Cargando...');
-      
-      const githubData = await loadDataFromGithub();
-      
-      if (githubData && githubData.vacations) {
-        applyData(githubData);
-        vacationData = githubData.vacations || [];
-        ultimaActualizacion = githubData.lastUpdated ? new Date(githubData.lastUpdated) : new Date();
-        localStorage.setItem('weekendRotationData_backup', JSON.stringify(githubData));
-        localStorage.setItem('weekendRotationVacations', JSON.stringify(githubData.vacations));
-        updateSyncStatus('online', '✅ Datos de GitHub');
-        console.log('📥 Datos cargados desde GitHub');
-      } else {
-        const localData = localStorage.getItem('weekendRotationData_backup');
-        if (localData) {
-          const parsed = JSON.parse(localData);
-          applyData(parsed);
-          vacationData = parsed.vacations || [];
-          ultimaActualizacion = parsed.lastUpdated ? new Date(parsed.lastUpdated) : new Date();
-          updateSyncStatus('online', '📂 Datos locales');
-          console.log('💾 Usando datos locales (backup)');
-        } else {
-          const defaultData = createDefaultData();
-          applyData(defaultData);
-          vacationData = defaultData.vacations || [];
-          ultimaActualizacion = new Date();
-          updateSyncStatus('online', '📄 Datos por defecto');
-          console.log('📄 Usando datos por defecto');
-        }
-      }
-      
-      actualizarTimestamp();
-      
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('vacationStart').min = today;
-      document.getElementById('vacationEnd').min = today;
-      
-      console.log('✅ Aplicación iniciada');
-      console.log('💡 Cada cambio se guarda automáticamente en GitHub');
+    // Inicializar la aplicación
+    function initApp() {
+        loadVacationsFromStorage();
+        updateVacationList();
+        updateRotation();
+        
+        // Establecer fecha mínima para los inputs de fecha (hoy)
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('vacationStart').min = today;
+        document.getElementById('vacationEnd').min = today;
     }
 
-    function applyData(data) {
-      if (!data) return;
-      
-      vacationData = data.vacations || [];
-      updateVacationList();
-      
-      if (data.manualChanges) {
-        if (data.manualChanges.saturday) {
-          document.getElementById('saturdayName').textContent = data.manualChanges.saturday;
-        }
-        if (data.manualChanges.sunday) {
-          document.getElementById('sundayName').textContent = data.manualChanges.sunday;
-        }
-        if (data.manualChanges.resting) {
-          document.getElementById('restingName').textContent = data.manualChanges.resting;
-        }
-      }
-      
-      updateRotation();
-    }
-
-    document.addEventListener('DOMContentLoaded', initApp);
-
-    // Hacer funciones globales
-    window.addVacation = addVacation;
-    window.clearVacations = clearVacations;
-    window.saveManualChanges = saveManualChanges;
-    window.copyPanelToClipboard = copyPanelToClipboard;
-    window.removeVacation = removeVacation;
-    window.recargarDatos = recargarDatos;
-    window.guardarCambios = guardarCambios;
-
-    // Sincronizar cada 10 segundos
-    setInterval(() => {
-      recargarDatos();
-    }, 10000);
-
-    console.log('💡 Sistema con guardado automático en cada cambio');
-    console.log('   - Al agregar vacación → se guarda automáticamente');
-    console.log('   - Al eliminar vacación → se guarda automáticamente');
-    console.log('   - Al cambiar encargados → se guarda automáticamente');
-    console.log('   - Cada 10 segundos se verifica si hay nuevos cambios');
+    // Inicializar la aplicación al cargar la página
+    initApp();
   </script>
 </body>
 </html>
