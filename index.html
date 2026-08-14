@@ -7,8 +7,231 @@
   <title>Encargados Fin de Semana</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* TODOS TUS ESTILOS CSS SE MANTIENEN IGUALES */
-    /* ... (copia todos tus estilos actuales aquí) ... */
+    /* Estilos mejorados para los inputs de fecha */
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #D1D8E0;
+  border-radius: 8px;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: all 0.3s ease;
+  background-color: #F8F9FA;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.form-group input[type="date"]:hover {
+  border-color: var(--primary-accent);
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.1);
+}
+
+.form-group input[type="date"]:focus {
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+  outline: none;
+  background-color: #FFFFFF;
+}
+
+/* Estilos para el contenedor de fechas */
+.date-inputs-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.date-inputs-container .form-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* Botones de vacaciones mejorados */
+.vacation-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.vacation-controls button {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.add-btn {
+  background: linear-gradient(45deg, #26DE81, #20C997);
+  color: white;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(38, 222, 129, 0.4);
+}
+
+.add-btn:active {
+  transform: translateY(0);
+}
+
+.clear-btn {
+  background: linear-gradient(45deg, #EE5253, #E74C3C);
+  color: white;
+}
+
+.clear-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(238, 82, 83, 0.4);
+}
+
+.clear-btn:active {
+  transform: translateY(0);
+}
+
+/* Indicador visual para fechas */
+.date-range {
+  background: linear-gradient(45deg, var(--primary-accent) 0%, var(--secondary-accent) 100%);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  margin: 15px 0;
+  text-align: center;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  letter-spacing: 0.5px;
+}
+
+/* Estilo para el botón de eliminar vacaciones */
+.vacation-list button {
+  background: linear-gradient(45deg, #EE5253, #E74C3C);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.vacation-list button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(238, 82, 83, 0.4);
+}
+
+/* Mejoras para el formulario de vacaciones */
+.vacation-form {
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.vacation-form .form-group label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+/* Animación para los cambios */
+.panel {
+  transition: all 0.3s ease-in-out;
+}
+
+.panel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px var(--shadow-medium);
+}
+
+/* Estilo para el selector de persona */
+.form-group select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #D1D8E0;
+  border-radius: 8px;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: all 0.3s ease;
+  background-color: #F8F9FA;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-dark);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.form-group select:hover {
+  border-color: var(--primary-accent);
+  background-color: #FFFFFF;
+}
+
+.form-group select:focus {
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.15);
+  outline: none;
+}
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 480px) {
+  .date-inputs-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .vacation-controls {
+    flex-direction: column;
+  }
+  
+  .vacation-controls button {
+    min-width: 100%;
+    padding: 14px;
+  }
+  
+  .form-group input[type="date"] {
+    padding: 14px 12px;
+  }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .form-group input[type="date"] {
+    background-color: #4a5568;
+    border-color: #718096;
+    color: var(--text-dark);
+  }
+  
+  .form-group input[type="date"]:hover,
+  .form-group input[type="date"]:focus {
+    background-color: #5a6a7e;
+  }
+  
+  .form-group select {
+    background-color: #4a5568;
+    border-color: #718096;
+    color: var(--text-dark);
+  }
+  
+  .form-group select:hover,
+  .form-group select:focus {
+    background-color: #5a6a7e;
+  }
+}
   </style>
 </head>
 <body>
