@@ -7,10 +7,6 @@
   <title>Encargados Fin de Semana</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ============================================ */
-    /* TODOS TUS ESTILOS CSS EXISTENTES VAN AQUÍ    */
-    /* ============================================ */
-    
     :root {
         --primary-accent: #fd0000e5;
         --secondary-accent: #bdbdc2;
@@ -428,7 +424,6 @@
       color: white;
     }
 
-    /* Toast notification */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -450,7 +445,6 @@
       opacity: 1;
     }
 
-    /* Responsive Grid Layout */
     @media (min-width: 768px) {
       .container {
         grid-template-columns: 1fr 1fr;
@@ -507,7 +501,6 @@
       }
     }
 
-    /* Mobile First Adjustments */
     @media (max-width: 480px) {
       body {
         padding: 10px;
@@ -553,7 +546,6 @@
       }
     }
 
-    /* Extra small devices */
     @media (max-width: 360px) {
       body {
         padding: 8px;
@@ -577,14 +569,12 @@
       }
     }
 
-    /* High DPI screens */
     @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
       .capture-button {
         backdrop-filter: blur(10px);
       }
     }
 
-    /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       :root {
         --text-dark: #f8f9fa;
@@ -611,7 +601,6 @@
       }
     }
 
-    /* Print styles */
     @media print {
       body {
         background: white;
@@ -691,7 +680,6 @@
         <div class="vacation-section">
             <h3>Vacaciones Programadas <span aria-hidden="true">📅</span></h3>
             <ul class="vacation-list" id="vacationList">
-                <!-- Las vacaciones se cargarán dinámicamente -->
             </ul>
         </div>
     </div>
@@ -731,40 +719,36 @@
         <div class="changes-section">
             <h3>Resumen Semanal: <span class="emoji">📈</span></h3>
             <ul class="summary-list" id="weeklySummary">
-                <!-- El resumen se cargará dinámicamente -->
             </ul>
         </div>
     </div>
 
   </div>
 
-  <!-- Toast notification -->
   <div id="toast" class="toast"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
-  <!-- ============================================ -->
-  <!-- TU CÓDIGO JAVASCRIPT COMPLETO CON GITHUB     -->
-  <!-- ============================================ -->
   <script>
     // ======================================================
-    // CONFIGURACIÓN DE GITHUB - ¡CAMBIAR ESTOS VALORES!
+    // CONFIGURACIÓN DE GITHUB
     // ======================================================
     const GITHUB_CONFIG = {
-      owner: 'TU_USUARIO_DE_GITHUB',    // Ej: 'juancarlos'
-      repo: 'weekend-rotation',          // Ej: 'weekend-rotation'
+      owner: 'GrRivera93',
+      repo: 'Vacante-RRSS',
       path: 'data.json',
       branch: 'main'
     };
 
-    // TU TOKEN DE GITHUB (creado en el Paso 1)
-    const GITHUB_TOKEN = 'TU_TOKEN_AQUI'; // Pega tu token aquí
+    // ⚠️ IMPORTANTE: Reemplaza con tu token personal de GitHub
+    // El token debe tener permisos de repo (full control)
+    // Puedes generarlo en: Settings > Developer settings > Personal access tokens
+    const GITHUB_TOKEN = 'TU_TOKEN_AQUI'; // ← PEGA TU TOKEN AQUÍ (empieza con ghp_)
 
     // ======================================================
     // FUNCIONES DE GITHUB
     // ======================================================
     
-    // Función para leer datos de GitHub
     async function loadDataFromGithub() {
       try {
         const url = `https://raw.githubusercontent.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}/${GITHUB_CONFIG.path}`;
@@ -784,7 +768,6 @@
         return data;
       } catch (error) {
         console.error('❌ Error cargando desde GitHub:', error);
-        // Si falla, intentar con localStorage
         const localData = localStorage.getItem('weekendRotationData');
         if (localData) {
           console.log('💾 Usando datos de localStorage');
@@ -794,20 +777,17 @@
       }
     }
 
-    // Función para guardar datos en GitHub
     async function saveDataToGithub(data) {
       try {
+        // Verificar que el token esté configurado
         if (!GITHUB_TOKEN || GITHUB_TOKEN === 'TU_TOKEN_AQUI') {
           throw new Error('❌ Token de GitHub no configurado');
         }
 
-        // 1. Obtener el SHA del archivo actual
         const sha = await getFileSha();
         
-        // 2. Preparar el contenido en base64
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
         
-        // 3. Crear el commit usando fetch directamente
         const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
         
         const body = {
@@ -837,21 +817,17 @@
         const result = await response.json();
         console.log('✅ Datos guardados en GitHub:', result);
         
-        // Guardar también en localStorage
         localStorage.setItem('weekendRotationData', JSON.stringify(data));
         
         return result;
       } catch (error) {
         console.error('❌ Error guardando en GitHub:', error);
-        
-        // Fallback: guardar solo en localStorage
         localStorage.setItem('weekendRotationData', JSON.stringify(data));
         showToast('💾 Guardado localmente (no se pudo guardar en GitHub)');
         return null;
       }
     }
 
-    // Obtener el SHA del archivo actual
     async function getFileSha() {
       try {
         if (!GITHUB_TOKEN || GITHUB_TOKEN === 'TU_TOKEN_AQUI') {
@@ -867,7 +843,7 @@
         });
         
         if (response.status === 404) {
-          return null; // Archivo no existe
+          return null;
         }
         
         if (!response.ok) {
@@ -882,7 +858,6 @@
       }
     }
 
-    // Crear datos por defecto
     function createDefaultData() {
       return {
         vacations: [
@@ -917,19 +892,14 @@
       }
     }
 
-    // Sincronizar datos
     async function syncData() {
       updateSyncStatus('syncing', '🔄 Sincronizando...');
       
       try {
-        // 1. Cargar datos de GitHub
         const githubData = await loadDataFromGithub();
-        
-        // 2. Cargar datos locales
         const localData = localStorage.getItem('weekendRotationData');
         const localParsed = localData ? JSON.parse(localData) : null;
         
-        // 3. Comparar y fusionar
         let finalData;
         if (githubData && localParsed) {
           const githubTime = new Date(githubData.lastUpdated || 0);
@@ -950,10 +920,7 @@
           finalData = createDefaultData();
         }
         
-        // 4. Aplicar datos
         applyData(finalData);
-        
-        // 5. Guardar en localStorage
         localStorage.setItem('weekendRotationData', JSON.stringify(finalData));
         
         updateSyncStatus('online', '✅ Sincronizado');
@@ -964,7 +931,6 @@
         console.error('Error sincronizando:', error);
         updateSyncStatus('offline', '📴 Sin conexión');
         
-        // Intentar usar datos locales
         const localData = localStorage.getItem('weekendRotationData');
         if (localData) {
           applyData(JSON.parse(localData));
@@ -974,15 +940,12 @@
       }
     }
 
-    // Aplicar datos a la interfaz
     function applyData(data) {
       if (!data) return;
       
-      // Aplicar vacaciones
       vacationData = data.vacations || [];
       updateVacationList();
       
-      // Aplicar cambios manuales
       if (data.manualChanges) {
         if (data.manualChanges.saturday) {
           document.getElementById('saturdayName').textContent = data.manualChanges.saturday;
@@ -995,12 +958,11 @@
         }
       }
       
-      // Actualizar rotación
       updateRotation();
     }
 
     // ======================================================
-    // TU CÓDIGO ORIGINAL (modificado para usar GitHub)
+    // TU CÓDIGO ORIGINAL
     // ======================================================
     
     const workers = ["Marvin", "Eli", "Juan"];
@@ -1016,7 +978,6 @@
 
     let vacationData = [];
 
-    // Cargar vacaciones desde localStorage
     function loadVacationsFromStorage() {
         const savedVacations = localStorage.getItem('weekendRotationVacations');
         if (savedVacations) {
@@ -1031,12 +992,9 @@
         }
     }
 
-    // Guardar vacaciones en localStorage Y GitHub
     async function saveVacationsToStorage() {
-        // Guardar en localStorage
         localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
         
-        // Guardar en GitHub
         const data = {
           vacations: vacationData,
           manualChanges: getManualChanges(),
@@ -1045,7 +1003,6 @@
         await saveDataToGithub(data);
     }
 
-    // Obtener cambios manuales actuales
     function getManualChanges() {
       return {
         saturday: document.getElementById('saturdayName').textContent,
@@ -1274,7 +1231,6 @@
         document.getElementById("sundayName").textContent = sundayInput;
         document.getElementById("restingName").textContent = restingPerson;
 
-        // Guardar cambios en GitHub
         const data = {
           vacations: vacationData,
           manualChanges: {
@@ -1409,25 +1365,20 @@
     // ======================================================
     
     async function initApp() {
-      // Mostrar estado de sincronización
       updateSyncStatus('syncing', '🔄 Conectando...');
       
-      // Cargar datos locales primero
       loadVacationsFromStorage();
       updateVacationList();
       updateRotation();
       
-      // Intentar sincronizar con GitHub
       await syncData();
       
-      // Configurar sincronización automática cada 30 segundos
       syncInterval = setInterval(async () => {
         if (document.visibilityState === 'visible') {
           await syncData();
         }
       }, 30000);
       
-      // Configurar fechas mínimas
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('vacationStart').min = today;
       document.getElementById('vacationEnd').min = today;
@@ -1435,10 +1386,8 @@
       console.log('✅ Aplicación iniciada');
     }
 
-    // Iniciar cuando la página esté lista
     document.addEventListener('DOMContentLoaded', initApp);
 
-    // Sincronizar cuando la página se vuelva visible
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         syncData();
