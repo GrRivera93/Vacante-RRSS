@@ -1,0 +1,15 @@
+{
+  "vacations": [
+    { "person": "Eli", "start": "2025-09-28", "end": "2025-10-12" },
+    { "person": "Juan", "start": "2025-11-16", "end": "2025-11-30" },
+    { "person": "Marvin", "start": "2025-12-07", "end": "2025-12-22" }
+  ],
+  "manualChanges": {},
+  "feedback": {
+    "lastRetro": null,
+    "nextRetro": null,
+    "rotation": ["Juan", "Eli", "Marvin"]
+  },
+  "lastUpdated": "2026-08-14T10:00:00.000Z",
+  "history": []
+}
