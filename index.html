@@ -449,7 +449,6 @@
       opacity: 1;
     }
 
-    /* Indicador de último cambio */
     .last-update {
       font-size: 0.8em;
       color: var(--text-light);
@@ -459,6 +458,7 @@
       background: var(--bg-light);
       border-radius: 6px;
       border: 1px solid var(--border-color);
+      grid-column: 1 / -1;
     }
 
     .last-update strong {
@@ -743,9 +743,9 @@
         </div>
     </div>
 
-    <!-- Indicador de última actualización -->
     <div class="last-update" id="lastUpdateInfo">
         ⏱️ Última actualización: <strong id="lastUpdateTime">Cargando...</strong>
+        <span style="margin-left: 15px;">🔄 Sincronización automática cada 10 segundos</span>
     </div>
 
   </div>
@@ -840,7 +840,6 @@
           throw new Error(`Error GitHub: ${error.message}`);
         }
 
-        // Actualizar timestamp
         ultimaActualizacion = new Date();
         actualizarTimestamp();
 
@@ -929,11 +928,10 @@
     }
 
     // ======================================================
-    // FUNCIÓN PRINCIPAL DE GUARDADO (AUTOMÁTICO)
+    // FUNCIÓN PRINCIPAL DE GUARDADO
     // ======================================================
     
     async function guardarCambios() {
-      // Obtener datos actuales de la interfaz
       const data = {
         vacations: vacationData,
         manualChanges: {
@@ -944,11 +942,9 @@
         lastUpdated: new Date().toISOString()
       };
       
-      // Guardar en GitHub
       const resultado = await saveDataToGithub(data);
       
       if (resultado) {
-        // Guardar backup local
         localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
         localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
       }
@@ -957,13 +953,10 @@
     }
 
     // ======================================================
-    // FUNCIÓN PARA RECARGAR DATOS
+    // FUNCIÓN PARA RECARGAR DATOS DESDE GITHUB
     // ======================================================
     
     async function recargarDatos() {
-      updateSyncStatus('syncing', '🔄 Cargando...');
-      showToast('🔄 Cargando datos...');
-      
       try {
         const githubData = await loadDataFromGithub();
         
@@ -972,7 +965,6 @@
           vacationData = githubData.vacations || [];
           updateVacationList();
           
-          // Aplicar cambios manuales
           if (githubData.manualChanges) {
             if (githubData.manualChanges.saturday) {
               document.getElementById('saturdayName').textContent = githubData.manualChanges.saturday;
@@ -986,51 +978,22 @@
           }
           
           updateRotation();
-          
-          // Actualizar timestamp
           ultimaActualizacion = githubData.lastUpdated ? new Date(githubData.lastUpdated) : new Date();
           actualizarTimestamp();
           
-          // Guardar backup
           localStorage.setItem('weekendRotationData_backup', JSON.stringify(githubData));
           localStorage.setItem('weekendRotationVacations', JSON.stringify(githubData.vacations));
           
           updateSyncStatus('online', '✅ Actualizado');
-          showToast('✅ Datos actualizados desde GitHub');
           console.log('📥 Datos recargados desde GitHub');
-        } else {
-          showToast('⚠️ No se pudieron cargar datos');
-          updateSyncStatus('offline', '⚠️ Sin datos');
         }
       } catch (error) {
         console.error('❌ Error recargando:', error);
-        showToast('❌ Error al recargar');
       }
-    }
-
-    function applyData(data) {
-      if (!data) return;
-      
-      vacationData = data.vacations || [];
-      updateVacationList();
-      
-      if (data.manualChanges) {
-        if (data.manualChanges.saturday) {
-          document.getElementById('saturdayName').textContent = data.manualChanges.saturday;
-        }
-        if (data.manualChanges.sunday) {
-          document.getElementById('sundayName').textContent = data.manualChanges.sunday;
-        }
-        if (data.manualChanges.resting) {
-          document.getElementById('restingName').textContent = data.manualChanges.resting;
-        }
-      }
-      
-      updateRotation();
     }
 
     // ======================================================
-    // TU CÓDIGO ORIGINAL (MODIFICADO PARA GUARDADO AUTOMÁTICO)
+    // TU CÓDIGO ORIGINAL
     // ======================================================
     
     const workers = ["Marvin", "Eli", "Juan"];
@@ -1185,7 +1148,6 @@
             vacationData.push({ person, start, end });
             updateVacationList();
             updateRotation();
-            // GUARDAR AUTOMÁTICAMENTE
             guardarCambios();
             showToast(`✅ Vacaciones agregadas para ${person}`);
             document.getElementById('vacationStart').value = '';
@@ -1200,7 +1162,6 @@
             vacationData = [];
             updateVacationList();
             updateRotation();
-            // GUARDAR AUTOMÁTICAMENTE
             guardarCambios();
             showToast('Todas las vacaciones han sido eliminadas');
         }
@@ -1212,7 +1173,6 @@
             vacationData.splice(index, 1);
             updateVacationList();
             updateRotation();
-            // GUARDAR AUTOMÁTICAMENTE
             guardarCambios();
             showToast('Vacaciones eliminadas');
         }
@@ -1277,7 +1237,6 @@
             <li>Cambio manual aplicado</li>
         `;
 
-        // GUARDAR AUTOMÁTICAMENTE
         guardarCambios();
         showToast('✅ Cambios manuales guardados');
     }
@@ -1397,11 +1356,9 @@
     async function initApp() {
       updateSyncStatus('syncing', '🔄 Cargando...');
       
-      // 1. Intentar cargar desde GitHub
       const githubData = await loadDataFromGithub();
       
       if (githubData && githubData.vacations) {
-        // Usar datos de GitHub
         applyData(githubData);
         vacationData = githubData.vacations || [];
         ultimaActualizacion = githubData.lastUpdated ? new Date(githubData.lastUpdated) : new Date();
@@ -1410,7 +1367,6 @@
         updateSyncStatus('online', '✅ Datos de GitHub');
         console.log('📥 Datos cargados desde GitHub');
       } else {
-        // Fallback: usar datos locales o por defecto
         const localData = localStorage.getItem('weekendRotationData_backup');
         if (localData) {
           const parsed = JSON.parse(localData);
@@ -1429,16 +1385,35 @@
         }
       }
       
-      // Actualizar timestamp
       actualizarTimestamp();
       
-      // Configurar fechas mínimas
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('vacationStart').min = today;
       document.getElementById('vacationEnd').min = today;
       
       console.log('✅ Aplicación iniciada');
       console.log('💡 Cada cambio se guarda automáticamente en GitHub');
+    }
+
+    function applyData(data) {
+      if (!data) return;
+      
+      vacationData = data.vacations || [];
+      updateVacationList();
+      
+      if (data.manualChanges) {
+        if (data.manualChanges.saturday) {
+          document.getElementById('saturdayName').textContent = data.manualChanges.saturday;
+        }
+        if (data.manualChanges.sunday) {
+          document.getElementById('sundayName').textContent = data.manualChanges.sunday;
+        }
+        if (data.manualChanges.resting) {
+          document.getElementById('restingName').textContent = data.manualChanges.resting;
+        }
+      }
+      
+      updateRotation();
     }
 
     document.addEventListener('DOMContentLoaded', initApp);
@@ -1452,7 +1427,7 @@
     window.recargarDatos = recargarDatos;
     window.guardarCambios = guardarCambios;
 
-    // Sincronizar cada 10 segundos (solo para verificar cambios de otros usuarios)
+    // Sincronizar cada 10 segundos
     setInterval(() => {
       recargarDatos();
     }, 10000);
