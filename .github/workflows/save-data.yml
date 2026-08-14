@@ -1,0 +1,43 @@
+name: Guardar y sincronizar datos
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data.json'
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Validar y formatear datos
+      run: |
+        if [ -f "data.json" ]; then
+          echo "📄 Validando data.json..."
+          if ! jq empty data.json 2>/dev/null; then
+            echo "❌ data.json no es un JSON válido"
+            exit 1
+          fi
+          echo "✅ data.json es válido"
+        else
+          echo "⚠️ data.json no existe, creando..."
+          echo '{"vacations":[],"manualChanges":{},"feedback":{"lastRetro":null,"nextRetro":null,"rotation":["Juan","Eli","Marvin"]},"lastUpdated":"2026-08-14T10:00:00.000Z","history":[]}' > data.json
+        fi
+    
+    - name: Commit y push cambios
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data.json
+        git diff --staged --quiet || git commit -m "🔄 Sincronización automática de datos [skip ci]"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
