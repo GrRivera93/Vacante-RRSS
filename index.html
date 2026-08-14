@@ -423,6 +423,10 @@
       background: #FF9F43;
       color: white;
     }
+    .sync-status.saved {
+      background: #3498db;
+      color: white;
+    }
 
     .toast {
       position: fixed;
@@ -443,6 +447,27 @@
 
     .toast.show {
       opacity: 1;
+    }
+
+    /* Botón de guardado manual */
+    .manual-save-btn {
+      background-image: linear-gradient(45deg, #2ecc71 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .manual-save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
     }
 
     @media (min-width: 768px) {
@@ -627,7 +652,7 @@
   <div class="container">
     <h1>
       Encargados Fin de Semana 🗓️
-      <span id="syncStatus" class="sync-status syncing">🔄 Sincronizando...</span>
+      <span id="syncStatus" class="sync-status syncing">🔄 Cargando...</span>
     </h1>
     
     <div class="panel" id="panelWeekend">
@@ -721,6 +746,14 @@
             <ul class="summary-list" id="weeklySummary">
             </ul>
         </div>
+
+        <!-- BOTÓN DE GUARDADO MANUAL GLOBAL -->
+        <button class="manual-save-btn" onclick="guardarTodo()">
+            💾 GUARDAR TODO EN GITHUB (Forzar)
+        </button>
+        <button class="manual-save-btn" onclick="recargarDesdeGitHub()" style="background-image: linear-gradient(45deg, #3498db 0%, #2980b9 100%); margin-top: 5px;">
+            🔄 RECARGAR DESDE GITHUB
+        </button>
     </div>
 
   </div>
@@ -747,9 +780,7 @@
     // VARIABLES GLOBALES
     // ======================================================
     let vacationData = [];
-    let syncStatus = 'offline';
-    let syncInterval = null;
-    let isSyncing = false;
+    let datosActuales = {};
 
     // ======================================================
     // FUNCIONES DE GITHUB
@@ -788,7 +819,7 @@
         const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`;
         
         const body = {
-          message: `Actualización: ${new Date().toISOString()}`,
+          message: `Actualización manual: ${new Date().toISOString()}`,
           content: content,
           branch: GITHUB_CONFIG.branch
         };
@@ -809,9 +840,12 @@
         }
 
         console.log('✅ Datos guardados en GitHub');
+        updateSyncStatus('saved', '✅ Guardado en GitHub');
+        showToast('✅ Datos guardados en GitHub');
         return await response.json();
       } catch (error) {
         console.error('❌ Error guardando:', error);
+        showToast('❌ Error al guardar: ' + error.message);
         return null;
       }
     }
@@ -859,11 +893,10 @@
     }
 
     // ======================================================
-    // FUNCIONES DE SINCRONIZACIÓN (CORREGIDAS)
+    // FUNCIONES DE SINCRONIZACIÓN (MANUAL)
     // ======================================================
     
     function updateSyncStatus(status, message) {
-      syncStatus = status;
       const statusElement = document.getElementById('syncStatus');
       if (statusElement) {
         statusElement.textContent = message;
@@ -871,47 +904,67 @@
       }
     }
 
-    async function syncData() {
-      if (isSyncing) {
-        console.log('⏳ Ya hay una sincronización en curso...');
-        return;
-      }
-      
-      isSyncing = true;
-      updateSyncStatus('syncing', '🔄 Sincronizando...');
+    // FUNCIÓN PARA RECARGAR DESDE GITHUB (MANUAL)
+    async function recargarDesdeGitHub() {
+      updateSyncStatus('syncing', '🔄 Cargando desde GitHub...');
+      showToast('🔄 Cargando datos desde GitHub...');
       
       try {
-        // 1. SIEMPRE cargar de GitHub primero
         const githubData = await loadDataFromGithub();
         
-        let finalData;
         if (githubData && githubData.vacations) {
-          // 2. USAR DATOS DE GITHUB (SIEMPRE)
-          finalData = githubData;
-          console.log('📥 Usando datos de GitHub (prioridad)');
+          // Aplicar datos de GitHub
+          applyData(githubData);
+          // Guardar en variables
+          vacationData = githubData.vacations || [];
+          datosActuales = githubData;
+          // Actualizar localStorage como backup
+          localStorage.setItem('weekendRotationData_backup', JSON.stringify(githubData));
+          localStorage.setItem('weekendRotationVacations', JSON.stringify(githubData.vacations));
+          
+          updateSyncStatus('online', '✅ Datos de GitHub cargados');
+          showToast('✅ Datos cargados desde GitHub');
+          console.log('📥 Datos recargados desde GitHub:', githubData);
         } else {
-          // 3. Si no hay datos en GitHub, usar datos por defecto
-          finalData = createDefaultData();
-          console.log('📄 Usando datos por defecto');
+          showToast('⚠️ No se pudieron cargar datos de GitHub');
+          updateSyncStatus('offline', '⚠️ Sin datos de GitHub');
         }
-        
-        // 4. Aplicar datos a la interfaz
-        applyData(finalData);
-        
-        // 5. Guardar en localStorage como backup (NO como fuente principal)
-        localStorage.setItem('weekendRotationData_backup', JSON.stringify(finalData));
-        localStorage.setItem('weekendRotationVacations', JSON.stringify(finalData.vacations));
-        
-        updateSyncStatus('online', '✅ Sincronizado');
-        showToast('✅ Datos sincronizados');
-        
-        return finalData;
       } catch (error) {
-        console.error('❌ Error sincronizando:', error);
-        updateSyncStatus('offline', '📴 Sin conexión');
-        return null;
-      } finally {
-        isSyncing = false;
+        console.error('❌ Error recargando:', error);
+        showToast('❌ Error al recargar');
+        updateSyncStatus('offline', '❌ Error de conexión');
+      }
+    }
+
+    // FUNCIÓN PARA GUARDAR TODO (MANUAL)
+    async function guardarTodo() {
+      updateSyncStatus('syncing', '💾 Guardando...');
+      showToast('💾 Guardando en GitHub...');
+      
+      try {
+        // Obtener datos actuales de la interfaz
+        const data = {
+          vacations: vacationData,
+          manualChanges: getManualChanges(),
+          lastUpdated: new Date().toISOString()
+        };
+        
+        const resultado = await saveDataToGithub(data);
+        
+        if (resultado) {
+          // Guardar backup local
+          localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
+          localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
+          datosActuales = data;
+          updateSyncStatus('saved', '✅ Guardado en GitHub');
+          showToast('✅ ¡Datos guardados exitosamente en GitHub!');
+        } else {
+          updateSyncStatus('offline', '❌ Error al guardar');
+        }
+      } catch (error) {
+        console.error('❌ Error guardando todo:', error);
+        showToast('❌ Error al guardar: ' + error.message);
+        updateSyncStatus('offline', '❌ Error');
       }
     }
 
@@ -938,35 +991,6 @@
       updateRotation();
     }
 
-    // ======================================================
-    // FUNCIONES DE GUARDADO (CORREGIDAS)
-    // ======================================================
-    
-    async function saveVacationsToStorage() {
-      // 1. Preparar datos
-      const data = {
-        vacations: vacationData,
-        manualChanges: getManualChanges(),
-        lastUpdated: new Date().toISOString()
-      };
-      
-      // 2. Guardar en GitHub (fuente de verdad)
-      const result = await saveDataToGithub(data);
-      
-      if (result) {
-        // 3. Si funciona, actualizar backup local
-        localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
-        localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
-        console.log('✅ Datos guardados en GitHub');
-      } else {
-        // 4. Si falla, solo guardar en localStorage (modo offline)
-        localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
-        localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
-        console.log('💾 Guardado local (modo offline)');
-        showToast('⚠️ Guardado localmente - sin conexión a GitHub');
-      }
-    }
-
     function getManualChanges() {
       return {
         saturday: document.getElementById('saturdayName').textContent,
@@ -976,24 +1000,26 @@
     }
 
     // ======================================================
-    // FUNCIONES DE CARGA (CORREGIDAS)
+    // FUNCIONES DE GUARDADO (MANUAL)
     // ======================================================
     
-    function loadVacationsFromStorage() {
-      // NO usar localStorage como fuente principal
-      // Solo se usa si falla GitHub
-      const savedVacations = localStorage.getItem('weekendRotationVacations');
-      if (savedVacations) {
-        vacationData = JSON.parse(savedVacations);
-        return;
-      }
+    async function saveVacationsToStorage() {
+      const data = {
+        vacations: vacationData,
+        manualChanges: getManualChanges(),
+        lastUpdated: new Date().toISOString()
+      };
       
-      // Si no hay datos, usar los de GitHub (se cargarán en syncData)
-      vacationData = [];
+      // Guardar en GitHub
+      await saveDataToGithub(data);
+      
+      // Actualizar backup local
+      localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
+      localStorage.setItem('weekendRotationVacations', JSON.stringify(vacationData));
     }
 
     // ======================================================
-    // TU CÓDIGO ORIGINAL (sin modificar)
+    // TU CÓDIGO ORIGINAL (MODIFICADO PARA USAR GUARDADO MANUAL)
     // ======================================================
     
     const workers = ["Marvin", "Eli", "Juan"];
@@ -1238,7 +1264,7 @@
           lastUpdated: new Date().toISOString()
         };
         
-        // Guardar en GitHub y localmente
+        // Guardar en GitHub
         saveDataToGithub(data).then(() => {
           localStorage.setItem('weekendRotationData_backup', JSON.stringify(data));
         });
@@ -1361,45 +1387,64 @@
     }
 
     // ======================================================
-    // INICIALIZACIÓN (CORREGIDA)
+    // INICIALIZACIÓN (SIN SINCRONIZACIÓN AUTOMÁTICA)
     // ======================================================
     
     async function initApp() {
-      updateSyncStatus('syncing', '🔄 Conectando...');
+      updateSyncStatus('syncing', '🔄 Cargando...');
       
-      // 1. Cargar datos locales (fallback)
-      loadVacationsFromStorage();
+      // 1. Intentar cargar desde GitHub
+      const githubData = await loadDataFromGithub();
       
-      // 2. Actualizar interfaz con datos locales (temporales)
-      updateVacationList();
-      updateRotation();
-      
-      // 3. Sincronizar con GitHub (fuente de verdad)
-      await syncData();
-      
-      // 4. Sincronización automática cada 30 segundos
-      syncInterval = setInterval(async () => {
-        if (document.visibilityState === 'visible') {
-          await syncData();
+      if (githubData && githubData.vacations) {
+        // Usar datos de GitHub
+        applyData(githubData);
+        vacationData = githubData.vacations || [];
+        localStorage.setItem('weekendRotationData_backup', JSON.stringify(githubData));
+        localStorage.setItem('weekendRotationVacations', JSON.stringify(githubData.vacations));
+        updateSyncStatus('online', '✅ Datos de GitHub');
+        console.log('📥 Datos cargados desde GitHub');
+      } else {
+        // Fallback: usar datos locales o por defecto
+        const localData = localStorage.getItem('weekendRotationData_backup');
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          applyData(parsed);
+          vacationData = parsed.vacations || [];
+          updateSyncStatus('online', '📂 Datos locales');
+          console.log('💾 Usando datos locales (backup)');
+        } else {
+          const defaultData = createDefaultData();
+          applyData(defaultData);
+          vacationData = defaultData.vacations || [];
+          updateSyncStatus('online', '📄 Datos por defecto');
+          console.log('📄 Usando datos por defecto');
         }
-      }, 30000);
+      }
       
+      // Configurar fechas mínimas
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('vacationStart').min = today;
       document.getElementById('vacationEnd').min = today;
       
       console.log('✅ Aplicación iniciada');
+      console.log('💡 Para guardar cambios, usa el botón "GUARDAR TODO EN GITHUB"');
     }
 
     document.addEventListener('DOMContentLoaded', initApp);
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        syncData();
-      }
-    });
+    // Hacer funciones globales para los botones
+    window.guardarTodo = guardarTodo;
+    window.recargarDesdeGitHub = recargarDesdeGitHub;
+    window.addVacation = addVacation;
+    window.clearVacations = clearVacations;
+    window.saveManualChanges = saveManualChanges;
+    window.copyPanelToClipboard = copyPanelToClipboard;
+    window.removeVacation = removeVacation;
 
-    console.log('💡 Sistema funcionando - GitHub es la fuente de verdad');
+    console.log('💡 Sistema con guardado manual');
+    console.log('   - Para GUARDAR: usa el botón "GUARDAR TODO EN GITHUB"');
+    console.log('   - Para RECARGAR: usa el botón "RECARGAR DESDE GITHUB"');
   </script>
 </body>
 </html>
